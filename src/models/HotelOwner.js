@@ -27,6 +27,11 @@ const hotelOwnerSchema =
         },
       },
 
+      status: {
+        type: String,
+        enum: ["pending", "approved", "rejected","needUpdate"],
+        default: "pending",
+      }
     },
     {
       timestamps: true,
