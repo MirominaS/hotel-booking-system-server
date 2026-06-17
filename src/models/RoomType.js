@@ -22,12 +22,6 @@ const roomTypeSchema = new mongoose.Schema({
     },
   ],
 
-  images: [
-    {
-      type: String,
-    },
-  ],
-
   capacity: {
     type: Number,
     required: true,

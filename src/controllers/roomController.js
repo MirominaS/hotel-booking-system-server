@@ -4,22 +4,17 @@ import {
   getRoomByIdService,
 } from "../services/roomService.js";
 
-export const createRoom = async (
-  req,
-  res
-) => {
+export const createRoom = async (req, res) => {
   try {
-    const room =
-      await createRoomService(
-        req.user._id,
-        req.params.hotelId,
-        req.body
-      );
+    const room = await createRoomService(
+      req.user._id,
+      req.params.hotelId,
+      req.body,
+    );
 
     res.status(201).json({
       success: true,
-      message:
-        "Room created successfully.",
+      message: "Room created successfully.",
       room,
     });
   } catch (error) {
@@ -30,15 +25,9 @@ export const createRoom = async (
   }
 };
 
-export const getHotelRooms = async (
-  req,
-  res
-) => {
+export const getHotelRooms = async (req, res) => {
   try {
-    const rooms =
-      await getHotelRoomService(
-        req.params.hotelId
-      );
+    const rooms = await getHotelRoomService(req.params.hotelId);
 
     res.status(200).json({
       success: true,
@@ -52,15 +41,9 @@ export const getHotelRooms = async (
   }
 };
 
-export const getRoomById = async (
-  req,
-  res
-) => {
+export const getRoomById = async (req, res) => {
   try {
-    const room =
-      await getRoomByIdService(
-        req.params.id
-      );
+    const room = await getRoomByIdService(req.params.id);
 
     res.status(200).json({
       success: true,

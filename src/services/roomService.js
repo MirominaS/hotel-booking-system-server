@@ -17,7 +17,7 @@ export const createRoomService = async (userId, hotelId, data) => {
     throw new Error("Hotel is awaiting approval.");
   }
 
-  const roomType = await RoomType.findById(data.roomType);
+  const roomType = await RoomType.findById(data.roomTypeId);
 
   if (!roomType) {
     throw new Error("Room type not found");
@@ -38,7 +38,7 @@ export const createRoomService = async (userId, hotelId, data) => {
 
   return await Room.create({
     hotel: hotelId,
-    roomType: data.roomType,
+    roomType: data.roomTypeId,
     roomNumber: data.roomNumber,
     mode: data.mode,
   });

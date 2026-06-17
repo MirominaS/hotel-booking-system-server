@@ -19,6 +19,13 @@ const roomSchema = new mongoose.Schema(
       type: Number,
     },
 
+    images: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Media",
+      },
+    ],
+
     mode: {
       type: String,
       enum: ["online", "in-person"],
