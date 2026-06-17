@@ -22,12 +22,16 @@
   },
   "homepage": "https://github.com/MirominaS/hotel-booking-system-server#readme",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1070.0",
+    "@aws-sdk/s3-request-presigner": "^3.1070.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.7.0",
+    "multer": "^2.2.0",
+    "stripe": "^22.2.0",
     "winston": "^3.19.0"
   },
   "devDependencies": {
