@@ -59,14 +59,15 @@ const hotelSchema = new mongoose.Schema(
 
     documents: {
       hotelLicense: {
-        type: String,
-        required: true,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Media",
       },
     },
 
     images: [
       {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Media",
       },
     ],
 
@@ -111,7 +112,7 @@ const hotelSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const Hotel = mongoose.model("Hotel", hotelSchema);
