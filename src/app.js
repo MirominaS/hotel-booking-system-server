@@ -7,6 +7,9 @@ import adminRoutes from "./routes/adminRoutes.js";
 import customerRoutes from "./routes/customerRoutes.js"
 import roomRoutes from "./routes/roomRoutes.js"
 import roomTypeRoutes from "./routes/roomTypeRoutes.js"
+import bookingRoutes from "./routes/bookingRoutes.js"
+import paymentRoutes from "./routes/paymentRoutes.js"
+import mediaRoutes from "./routes/mediaRoutes.js"
 
 const app = express();
 app.use(cors());
@@ -23,11 +26,19 @@ app.use("/api/hotel-owner", hotelRoutes);
 app.use("/api/rooms", roomRoutes)
 app.use("/api/room-types", roomTypeRoutes)
 
+app.use("/api/booking", bookingRoutes)
+
 //admin
 app.use("/api/admin", adminRoutes);
 
 //customer
 app.use("/api/customer", customerRoutes)
+
+//payment
+app.use("/api/payments", paymentRoutes)
+
+//media
+app.use("/api/media", mediaRoutes)
 
 app.get("/", (req, res) => {
   res.send("Server is running");
