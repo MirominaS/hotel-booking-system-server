@@ -14,13 +14,24 @@ import { authorize } from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
-router.post("/upload", protect,authorize("hotel_owner"), upload.single("file"), uploadMedia);
+router.post(
+  "/upload",
+  protect,
+  authorize("hotel_owner"),
+  upload.single("file"),
+  uploadMedia,
+);
 router.get("/:id/url", optionalAuth, getMediaAccessUrl);
-router.get("/", protect, getMyMedia)
-router.get("/public", getPublicMedia)
-router.patch("/:id", protect, authorize("hotel_owner"),  upload.single("file"), updateMedia)
-router.patch("/:id/grant-edit", protect,authorize("admin"), grantEditAccess )
+router.get("/", protect, getMyMedia);
+router.get("/public", getPublicMedia);
+router.patch(
+  "/:id",
+  protect,
+  authorize("hotel_owner"),
+  upload.single("file"),
+  updateMedia,
+);
+router.patch("/:id/grant-edit", protect, authorize("admin"), grantEditAccess);
 router.delete("/:id", protect, authorize("hotel_owner"), deleteMedia);
-
 
 export default router;

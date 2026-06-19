@@ -93,7 +93,8 @@ export const uploadMedia = async (req, res) => {
 export const getMediaAccessUrl = async (req, res) => {
   try {
     const media = await Media.findById(req.params.id);
-
+    console.log("REQ USER:", req.user);
+    console.log("MEDIA OWNER:", media.uploadedBy.toString());
     if (!media) {
       return res.status(404).json({
         success: false,
@@ -171,6 +172,14 @@ export const deleteMedia = async (req, res) => {
         message: "Media not found",
       });
     }
+
+    if (media.folder === "owner-nic" || media.folder === "hotel-licenses") {
+      return res.status(403).json({
+        success: false,
+        message: "Verification documents cannot be deleted.",
+      });
+    }
+
     if (
       media.uploadedBy.toString() !== req.user._id.toString() &&
       req.user.role !== "admin"
@@ -303,14 +312,53 @@ export const grantEditAccess = async (req, res) => {
 };
 
 export const getMyMedia = async (req, res) => {
-  const media = await Media.find({
-    uploadedBy: req.user._id,
-  }).sort({ createdAt: -1 });
+  try {
+    const media = await Media.find({
+      uploadedBy: req.user._id,
+    }).sort({
+      createdAt: -1,
+    });
 
-  res.json({
-    success: true,
-    media,
-  });
+    const folders = [
+      {
+        key: "hotel-images",
+        name: "Hotel Images",
+        type: "image",
+        files: media.filter((m) => m.folder === "hotel-images"),
+      },
+
+      {
+        key: "room-images",
+        name: "Room Images",
+        type: "image",
+        files: media.filter((m) => m.folder === "room-images"),
+      },
+
+      {
+        key: "hotel-licenses",
+        name: "Hotel Licenses",
+        type: "document",
+        files: media.filter((m) => m.folder === "hotel-licenses"),
+      },
+
+      {
+        key: "owner-nic",
+        name: "Owner NIC",
+        type: "document",
+        files: media.filter((m) => m.folder === "owner-nic"),
+      },
+    ];
+
+    res.json({
+      success: true,
+      folders,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 
 export const getPublicMedia = async (req, res) => {
