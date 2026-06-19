@@ -2,11 +2,47 @@ import Hotel from "../models/Hotel.js";
 import Room from "../models/Room.js";
 
 //get approved hotels
-export const getApprovedHotelsService = async () => {
-  return await Hotel.find({
-    status: "approved",
-    isActive: true,
-  }).populate("user", "firstName lastName");
+export const getApprovedHotelsService = async (
+  page,
+  limit,
+  skip,
+  status,
+  search,
+) => {
+  const filter = { isActive: true };
+
+  if (status) {
+    filter.status = status;
+  } else {
+    filter.status = "approved";
+  }
+
+  if (search) {
+    filter.hotelName = {
+      $regex: search,
+      $options: "i",
+    };
+  }
+  const [hotels, total] = await Promise.all([
+    Hotel.find(filter)
+      .populate("user", "firstName lastName")
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 }),
+
+    Hotel.countDocuments(filter),
+  ]);
+  return {
+    hotels,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      hasNextPage: page < Math.ceil(total / limit),
+      hasPrevPage: page > 1,
+    },
+  };
 };
 
 //get approved single hotel
@@ -25,7 +61,12 @@ export const getApprovedHotelByIdService = async (hotelId) => {
 };
 
 //available rooms
-export const getAvailableHotelRoomsService = async (hotelId) => {
+export const getAvailableHotelRoomsService = async (
+  hotelId,
+  page,
+  limit,
+  skip,
+) => {
   const hotel = await Hotel.findById(hotelId);
 
   if (!hotel) {
@@ -36,10 +77,32 @@ export const getAvailableHotelRoomsService = async (hotelId) => {
     throw new Error("Hotel is not available.");
   }
 
-  return await Room.find({
+  const filter = {
     hotel: hotelId,
     isActive: true,
-  });
+  };
+
+  const [rooms, total] = await Promise.all([
+    Room.find(filter)
+      .populate("roomType", "name capacity pricePerNight images")
+      .sort({ roomNumber: 1 })
+      .skip(skip)
+      .limit(limit),
+
+    Room.countDocuments(filter),
+  ]);
+
+  return {
+    rooms,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      hasNextPage: page < Math.ceil(total / limit),
+      hasPrevPage: page > 1,
+    },
+  };
 };
 
 //available room by id

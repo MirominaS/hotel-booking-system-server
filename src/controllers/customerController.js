@@ -8,11 +8,35 @@ import {
 //get approved hotels
 export const getApprovedHotels = async (req, res) => {
   try {
-    const hotels = await getApprovedHotelsService();
+    // pagination query
+    const pageRaw = Number(req.query.page ?? 1);
+    const limitRaw = Number(req.query.limit ?? 10);
+
+    // validate pagination values
+    const page =
+      Number.isFinite(pageRaw) && pageRaw > 0 ? Math.floor(pageRaw) : 1;
+
+    const limit =
+      Number.isFinite(limitRaw) && limitRaw > 0 ? Math.floor(limitRaw) : 10;
+
+    // skip
+    const skip = (page - 1) * limit;
+
+    // filters
+    const status = req.query.status || "";
+    const search = req.query.search || "";
+
+    const results = await getApprovedHotelsService(
+      page,
+      limit,
+      skip,
+      status,
+      search,
+    );
 
     res.status(200).json({
       success: true,
-      hotels,
+      ...results,
     });
   } catch (error) {
     res.status(500).json({
@@ -42,11 +66,27 @@ export const getApprovedHotelById = async (req, res) => {
 //get available rooms
 export const getAvailableHotelRooms = async (req, res) => {
   try {
-    const rooms = await getAvailableHotelRoomsService(req.params.hotelId);
+    const pageRaw = Number(req.query.page ?? 1);
+    const limitRaw = Number(req.query.limit ?? 10);
+
+    const page =
+      Number.isFinite(pageRaw) && pageRaw > 0 ? Math.floor(pageRaw) : 1;
+
+    const limit =
+      Number.isFinite(limitRaw) && limitRaw > 0 ? Math.floor(limitRaw) : 10;
+
+    const skip = (page - 1) * limit;
+
+    const result = await getAvailableHotelRoomsService(
+      req.params.hotelId,
+      page,
+      limit,
+      skip,
+    );
 
     res.status(200).json({
       success: true,
-      rooms,
+      ...result,
     });
   } catch (error) {
     res.status(404).json({
