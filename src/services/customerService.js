@@ -1,5 +1,5 @@
 import Hotel from "../models/Hotel.js";
-import Room from "../models/Room.js"
+import Room from "../models/Room.js";
 
 //get approved hotels
 export const getApprovedHotelsService = async () => {

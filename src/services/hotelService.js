@@ -63,3 +63,50 @@ export const getMyHotelByIdService = async (userId, hotelId) => {
 
   return hotel;
 };
+
+export const updateHotelService = async (userId, hotelId, data) => {
+  const hotel = await Hotel.findOne({
+    _id: hotelId,
+    user: userId,
+  });
+
+  if (!hotel) {
+    throw new Error("Hotel not found.");
+  }
+
+  // Prevent updating protected fields
+  delete data.user;
+  delete data.documents;
+
+  // Validate images if provided
+  if (data.images?.length) {
+    const images = await Media.find({
+      _id: { $in: data.images },
+      uploadedBy: userId,
+    });
+
+    if (images.length !== data.images.length) {
+      throw new Error("You can only use your own uploaded images.");
+    }
+  }
+
+  Object.assign(hotel, data);
+
+  return await hotel.save();
+};
+
+export const deleteHotelService = async (userId, hotelId) => {
+  const hotel = await Hotel.findOne({
+    _id: hotelId,
+    user: userId,
+    isActive: true,
+  });
+
+  if (!hotel) {
+    throw new Error("Hotel not found.");
+  }
+
+  hotel.isActive = false;
+
+  return await hotel.save();
+};
