@@ -5,6 +5,8 @@ import {
   getBookingGroupService,
   cancelBookingService,
   cancelBookingGroupService,
+  getOwnerBookingsService,
+  getOwnerBookingGroupService,
 } from "../services/bookingService.js";
 
 export const checkAvailability = async (req, res) => {
@@ -106,6 +108,73 @@ export const cancelBookingGroup = async (req, res) => {
     });
   } catch (error) {
     res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getOwnerBookings = async (req, res) => {
+  try {
+    const pageRaw = Number(req.query.page ?? 1);
+    const limitRaw = Number(req.query.limit ?? 10);
+
+    const page =
+      Number.isFinite(pageRaw) && pageRaw > 0 ? Math.floor(pageRaw) : 1;
+
+    const limit =
+      Number.isFinite(limitRaw) && limitRaw > 0 ? Math.floor(limitRaw) : 10;
+
+    const skip = (page - 1) * limit;
+
+    const results = await getOwnerBookingsService(
+      req.user._id,
+      page,
+      limit,
+      skip,
+    );
+
+    res.status(200).json({
+      success: true,
+      ...results,
+    });
+  } catch (error) {
+    console.log("OWNER BOOKING", error.message);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getOwnerBookingGroup = async (req, res) => {
+  try {
+    const pageRaw = Number(req.query.page ?? 1);
+    const limitRaw = Number(req.query.limit ?? 10);
+
+    const page =
+      Number.isFinite(pageRaw) && pageRaw > 0 ? Math.floor(pageRaw) : 1;
+
+    const limit =
+      Number.isFinite(limitRaw) && limitRaw > 0 ? Math.floor(limitRaw) : 10;
+
+    const skip = (page - 1) * limit;
+
+    const results = await getOwnerBookingGroupService(
+      req.user._id,
+      req.params.bookingReference,
+      page,
+      limit,
+      skip,
+    );
+
+    res.status(200).json({
+      success: true,
+      ...results,
+    });
+  } catch (error) {
+    res.status(404).json({
       success: false,
       message: error.message,
     });

@@ -325,3 +325,85 @@ export const cancelBookingGroupService = async (userId, bookingReference) => {
     handleServiceError("cancelBookingGroupService", error);
   }
 };
+
+export const getOwnerBookingsService = async (userId, page, limit, skip) => {
+  const hotels = await Hotel.find({
+    user: userId,
+  }).select("_id");
+
+  const hotelIds = hotels.map((hotel) => hotel._id);
+
+  const filter = {
+    hotel: { $in: hotelIds },
+  };
+
+  const [bookings, totalBookings] = await Promise.all([
+    Booking.find(filter)
+      .populate("customer", "firstName lastName email")
+      .populate("hotel", "hotelName")
+      .populate({
+        path: "room",
+        populate: {
+          path: "roomType",
+        },
+      })
+      .populate("payment")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+
+    Booking.countDocuments(filter),
+  ]);
+
+  return {
+    bookings,
+    currentPage: page,
+    totalPages: Math.ceil(totalBookings / limit),
+    totalBookings,
+    limit,
+  };
+};
+
+export const getOwnerBookingGroupService = async (
+  userId,
+  bookingReference,
+  page,
+  limit,
+  skip,
+) => {
+  const hotels = await Hotel.find({
+    user: userId,
+  }).select("_id");
+
+  const hotelIds = hotels.map((hotel) => hotel._id);
+
+  const filter = {
+    bookingReference,
+    hotel: { $in: hotelIds },
+  };
+
+  const [bookings, totalBookings] = await Promise.all([
+    Booking.find(filter)
+      .populate("customer", "firstName lastName email")
+      .populate("hotel")
+      .populate({
+        path: "room",
+        populate: {
+          path: "roomType",
+        },
+      })
+      .populate("payment")
+      .skip(skip)
+      .limit(limit),
+
+    Booking.countDocuments(filter),
+  ]);
+
+  return {
+    bookings,
+    currentPage: page,
+    totalPages: Math.ceil(totalBookings / limit),
+    totalBookings,
+    limit,
+  };
+};
