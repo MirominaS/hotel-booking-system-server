@@ -42,10 +42,32 @@ export const createHotelService = async (userId, data) => {
 };
 
 //get
-export const getMyHotelsService = async (userId) => {
-  return await Hotel.find({
+export const getMyHotelsService = async (userId, page, limit, skip) => {
+  const filter = {
     user: userId,
-  }).populate("user", "firstName lastName email");
+  };
+
+  const [hotels, total] = await Promise.all([
+    Hotel.find(filter)
+      .populate("user", "firstName lastName email")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+
+    Hotel.countDocuments(filter),
+  ]);
+
+  return {
+    hotels,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      hasNextPage: page < Math.ceil(total / limit),
+      hasPrevPage: page > 1,
+    },
+  };
 };
 
 export const getMyHotelByIdService = async (userId, hotelId) => {

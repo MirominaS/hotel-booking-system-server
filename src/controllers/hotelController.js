@@ -27,11 +27,22 @@ export const createHotel = async (req, res) => {
 //get
 export const getMyHotels = async (req, res) => {
   try {
-    const hotels = await getMyHotelsService(req.user._id);
+    const pageRaw = Number(req.query.page ?? 1);
+    const limitRaw = Number(req.query.limit ?? 10);
 
-    res.json({
+    const page =
+      Number.isFinite(pageRaw) && pageRaw > 0 ? Math.floor(pageRaw) : 1;
+
+    const limit =
+      Number.isFinite(limitRaw) && limitRaw > 0 ? Math.floor(limitRaw) : 10;
+
+    const skip = (page - 1) * limit;
+
+    const result = await getMyHotelsService(req.user._id, page, limit, skip);
+
+    res.status(200).json({
       success: true,
-      hotels,
+      ...result,
     });
   } catch (error) {
     res.status(500).json({
@@ -40,7 +51,6 @@ export const getMyHotels = async (req, res) => {
     });
   }
 };
-
 export const getMyHotelById = async (req, res) => {
   try {
     const hotel = await getMyHotelByIdService(req.user._id, req.params.id);
