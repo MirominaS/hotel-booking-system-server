@@ -41,6 +41,7 @@ export const createRoomService = async (userId, hotelId, data) => {
     roomType: data.roomTypeId,
     roomNumber: data.roomNumber,
     mode: data.mode,
+    images: data.images || [],
   });
 };
 
@@ -89,6 +90,10 @@ export const updateRoomService = async (userId, hotelId, roomId, data) => {
 
   if (!room) {
     throw new Error("Room not found");
+  }
+
+  if (data.images) {
+    room.images = data.images;
   }
 
   if (data.roomTypeId) {

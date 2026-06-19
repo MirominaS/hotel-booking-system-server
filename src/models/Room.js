@@ -17,6 +17,7 @@ const roomSchema = new mongoose.Schema(
 
     roomNumber: {
       type: Number,
+      required: true,
     },
 
     images: [
@@ -39,6 +40,19 @@ const roomSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+  },
+);
+
+roomSchema.index(
+  {
+    hotel: 1,
+    roomNumber: 1,
+  },
+  {
+    unique: true,
+    partialFilterExpression: {
+      isActive: true,
+    },
   },
 );
 
