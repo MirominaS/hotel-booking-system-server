@@ -69,3 +69,86 @@ export const getRoomByIdService = async (roomId) => {
 
   return room;
 };
+
+export const updateRoomService = async (userId, hotelId, roomId, data) => {
+  const hotel = await Hotel.findById(hotelId);
+
+  if (!hotel) {
+    throw new Error("Hotel not found");
+  }
+
+  if (hotel.user.toString() !== userId.toString()) {
+    throw new Error("You don't own this hotel");
+  }
+
+  const room = await Room.findOne({
+    _id: roomId,
+    hotel: hotelId,
+    isActive: true,
+  });
+
+  if (!room) {
+    throw new Error("Room not found");
+  }
+
+  if (data.roomTypeId) {
+    const roomType = await RoomType.findById(data.roomTypeId);
+
+    if (!roomType) {
+      throw new Error("Room type not found");
+    }
+
+    if (roomType.hotel.toString() !== hotelId.toString()) {
+      throw new Error("This room type doesn't belong to this hotel");
+    }
+
+    room.roomType = data.roomTypeId;
+  }
+
+  if (data.roomNumber && data.roomNumber !== room.roomNumber) {
+    const existingRoom = await Room.findOne({
+      hotel: hotelId,
+      roomNumber: data.roomNumber,
+      _id: { $ne: roomId },
+      isActive: true,
+    });
+
+    if (existingRoom) {
+      throw new Error("Room number already exists");
+    }
+
+    room.roomNumber = data.roomNumber;
+  }
+
+  if (data.mode) {
+    room.mode = data.mode;
+  }
+
+  return await room.save();
+};
+
+export const deleteRoomService = async (userId, hotelId, roomId) => {
+  const hotel = await Hotel.findById(hotelId);
+
+  if (!hotel) {
+    throw new Error("Hotel not found");
+  }
+
+  if (hotel.user.toString() !== userId.toString()) {
+    throw new Error("You don't own this hotel");
+  }
+
+  const room = await Room.findOne({
+    _id: roomId,
+    hotel: hotelId,
+    isActive: true,
+  });
+
+  if (!room) {
+    throw new Error("Room not found");
+  }
+
+  room.isActive = false;
+
+  return await room.save();
+};

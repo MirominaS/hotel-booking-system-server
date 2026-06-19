@@ -1,11 +1,11 @@
-import { 
-    createRoomTypeService, 
-    getHotelRoomTypesService,
-    getRoomTypeByIdService,
-    updateRoomTypeService,
-    deleteRoomTypeService
-  } from "../services/roomTypeService.js";
-  
+import {
+  createRoomTypeService,
+  getHotelRoomTypesService,
+  getRoomTypeByIdService,
+  updateRoomTypeService,
+  deleteRoomTypeService,
+} from "../services/roomTypeService.js";
+
 export const createRoomType = async (req, res) => {
   try {
     const roomType = await createRoomTypeService(
