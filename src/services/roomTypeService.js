@@ -48,33 +48,34 @@ export const getRoomTypeByIdService = async (roomTypeId) => {
   return roomType;
 };
 
-export const updateRoomTypeService = async (roomTypeId, data) => {
-  const roomType = await RoomType.findByIdAndUpdate(roomTypeId, data, {
-    new: true,
-    runValidators: true,
-  });
+export const updateRoomTypeService = async (userId, roomTypeId, data) => {
+  const roomType = await RoomType.findById(roomTypeId).populate("hotel");
 
   if (!roomType) {
     throw new Error("Room type not found");
   }
 
-  return roomType;
+  if (roomType.hotel.user.toString() !== userId.toString()) {
+    throw new Error("Unauthorized");
+  }
+
+  Object.assign(roomType, data);
+
+  return await roomType.save();
 };
 
-export const deleteRoomTypeService = async (roomTypeId) => {
-  const roomType = await RoomType.findByIdAndUpdate(
-    roomTypeId,
-    {
-      isActive: false,
-    },
-    {
-      new: true,
-    },
-  );
+export const deleteRoomTypeService = async (userId, roomTypeId) => {
+  const roomType = await RoomType.findById(roomTypeId).populate("hotel");
 
   if (!roomType) {
     throw new Error("Room type not found");
   }
 
-  return roomType;
+  if (roomType.hotel.user.toString() !== userId.toString()) {
+    throw new Error("Unauthorized");
+  }
+
+  roomType.isActive = false;
+
+  return await roomType.save();
 };

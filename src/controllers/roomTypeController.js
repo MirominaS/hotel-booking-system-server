@@ -19,6 +19,7 @@ export const createRoomType = async (req, res) => {
       roomType,
     });
   } catch (error) {
+    console.log("ERROR ROOM TYPE:", error.message);
     res.status(400).json({
       success: false,
       message: error.message,
@@ -60,7 +61,11 @@ export const getRoomTypeById = async (req, res) => {
 
 export const updateRoomType = async (req, res) => {
   try {
-    const roomType = await updateRoomTypeService(req.params.id, req.body);
+    const roomType = await updateRoomTypeService(
+      req.user._id,
+      req.params.id,
+      req.body,
+    );
 
     res.status(200).json({
       success: true,
@@ -76,7 +81,7 @@ export const updateRoomType = async (req, res) => {
 
 export const deleteRoomType = async (req, res) => {
   try {
-    await deleteRoomTypeService(req.params.id);
+    await deleteRoomTypeService(req.user._id, req.params.id);
 
     res.status(200).json({
       success: true,
