@@ -5,16 +5,7 @@ import generateToken from "../utils/generateToken.js";
 
 //register Service
 export const registerService = async (data) => {
-  const {
-    firstName,
-    lastName,
-    email,
-    password,
-    phone,
-    role,
-    ownerNicNumber,
-    documents,
-  } = data;
+  const { firstName, lastName, email, password, phone, role } = data;
 
   const existingUser = await User.findOne({
     email,
@@ -34,14 +25,6 @@ export const registerService = async (data) => {
     phone,
     role: role || "customer",
   });
-
-  if (role === "hotel_owner") {
-    await HotelOwner.create({
-      user: user._id,
-      ownerNicNumber,
-      documents,
-    });
-  }
 
   return user;
 };
