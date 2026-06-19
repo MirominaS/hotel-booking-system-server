@@ -10,6 +10,8 @@ import roomTypeRoutes from "./routes/roomTypeRoutes.js"
 import bookingRoutes from "./routes/bookingRoutes.js"
 import paymentRoutes from "./routes/paymentRoutes.js"
 import mediaRoutes from "./routes/mediaRoutes.js"
+import hotelOwnerRoutes from "./routes/hotelOwnerRoutes.js"
+import hotelAnalyticsRoutes from "./routes/hotelAnalyticsRoutes.js"
 
 const app = express();
 app.use(cors());
@@ -20,13 +22,17 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 
 //hotel-owner
-app.use("/api/hotel-owner", hotelRoutes);
+app.use("/api/hotel", hotelRoutes);
+app.use("/api/hotel-owner", hotelOwnerRoutes)
 
 //hotel-room
 app.use("/api/rooms", roomRoutes)
 app.use("/api/room-types", roomTypeRoutes)
 
 app.use("/api/booking", bookingRoutes)
+
+//hotel-analytics
+app.use("/api/hotel-analytics", hotelAnalyticsRoutes)
 
 //admin
 app.use("/api/admin", adminRoutes);
