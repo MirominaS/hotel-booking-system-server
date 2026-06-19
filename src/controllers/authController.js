@@ -4,6 +4,8 @@ import generateToken from "../utils/generateToken.js";
 //register
 export const register = async (req, res) => {
   try {
+    console.log("BODY:", req.body);
+    console.log("FILES:", req.files);
     const user = await registerService(req.body);
 
     const token = generateToken(user);
@@ -31,9 +33,9 @@ export const register = async (req, res) => {
 //login
 export const login = async (req, res) => {
   try {
-    const {email, password} = req.body;
+    const { email, password } = req.body;
 
-    const data = await loginService(email, password)
+    const data = await loginService(email, password);
 
     res.status(200).json({
       success: true,
@@ -46,25 +48,25 @@ export const login = async (req, res) => {
         email: data.user.email,
         role: data.user.role,
       },
-    })
+    });
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: error
-    })
+      message: error.message,
+    });
   }
-}
+};
 
 export const getMe = async (req, res) => {
-  try{
+  try {
     res.status(200).json({
       success: true,
-      user:req.user,
-    })
+      user: req.user,
+    });
   } catch (error) {
     res.status(500).json({
       success: false,
       message: error.message,
-    })
+    });
   }
-}
+};
