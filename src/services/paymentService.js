@@ -1,6 +1,7 @@
 import Booking from "../models/Booking.js";
 import Payment from "../models/Payment.js";
 import stripe from "../config/stripe.js";
+import Hotel from "../models/Hotel.js";
 
 export const createBookingCheckoutService = async (user, bookingReference) => {
   const bookings = await Booking.find({
@@ -81,7 +82,7 @@ export const bookingPaymentSuccessService = async (sessionId, userId) => {
   }
 
   // Prevent double processing
-  if (payment.paymentStatus === "paid") {
+  if (payment.status === "paid") {
     return payment;
   }
 
@@ -100,7 +101,7 @@ export const bookingPaymentSuccessService = async (sessionId, userId) => {
     throw new Error("Booking hold has expired");
   }
 
-  payment.paymentStatus = "paid";
+  payment.status = "paid";
   await payment.save();
 
   await Booking.updateMany(
@@ -115,4 +116,33 @@ export const bookingPaymentSuccessService = async (sessionId, userId) => {
   );
 
   return payment;
+};
+
+export const getOwnerPaymentsService = async (userId) => {
+  const hotels = await Hotel.find({
+    user: userId,
+  }).select("_id");
+
+  const hotelIds = hotels.map((hotel) => hotel._id);
+
+  const bookings = await Booking.find({
+    hotel: {
+      $in: hotelIds,
+    },
+    payment: {
+      $ne: null,
+    },
+  }).select("payment");
+
+  const paymentIds = [...new Set(bookings.map((b) => b.payment.toString()))];
+
+  return await Payment.find({
+    _id: {
+      $in: paymentIds,
+    },
+  })
+    .populate("customer", "firstName lastName email")
+    .sort({
+      createdAt: -1,
+    });
 };
