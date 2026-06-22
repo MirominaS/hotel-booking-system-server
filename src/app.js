@@ -13,6 +13,7 @@ import mediaRoutes from "./routes/mediaRoutes.js";
 import hotelOwnerRoutes from "./routes/hotelOwnerRoutes.js";
 import hotelAnalyticsRoutes from "./routes/hotelAnalyticsRoutes.js";
 import adminAnalyticsRoutes from "./routes/adminAnalyticsRoutes.js";
+import reviewRoutes from "./routes/reviewRoutes.js"
 
 const app = express();
 app.use(cors());
@@ -47,6 +48,9 @@ app.use("/api/payments", paymentRoutes);
 
 //media
 app.use("/api/media", mediaRoutes);
+
+//review
+app.use("/api/reviews", reviewRoutes)
 
 app.get("/", (req, res) => {
   res.send("Server is running");
