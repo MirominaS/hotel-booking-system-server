@@ -45,7 +45,7 @@ export const createBookingCheckoutService = async (user, bookingReference) => {
     customer: user._id,
     stripeSessionId: session.id,
     amount,
-    paymentStatus: "pending",
+    status: "pending",
     customerEmail: user.email,
   });
 
