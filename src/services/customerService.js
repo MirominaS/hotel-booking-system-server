@@ -1,6 +1,6 @@
 import Hotel from "../models/Hotel.js";
 import Room from "../models/Room.js";
-
+import { attachSignedUrls } from "../utils/mediaUrl.js";
 //get approved hotels
 export const getApprovedHotelsService = async (
   page,
@@ -26,14 +26,23 @@ export const getApprovedHotelsService = async (
   const [hotels, total] = await Promise.all([
     Hotel.find(filter)
       .populate("user", "firstName lastName")
+      .populate("images", "key originalName")
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 }),
 
     Hotel.countDocuments(filter),
   ]);
+
+  const hotelsWithUrls = await Promise.all(
+    hotels.map(async (hotel) => ({
+      ...hotel.toObject(),
+      images: await attachSignedUrls(hotel.images),
+    })),
+  );
+
   return {
-    hotels,
+    hotels: hotelsWithUrls,
     pagination: {
       total,
       page,
@@ -51,11 +60,15 @@ export const getApprovedHotelByIdService = async (hotelId) => {
     _id: hotelId,
     status: "approved",
     isActive: true,
-  }).populate("user", "firstName lastName");
+  })
+    .populate("user", "firstName lastName")
+    .populate("images", "key originalName");
 
   if (!hotel) {
     throw new Error("Hotel not found.");
   }
+
+  hotel.images = await attachSignedUrls(hotel.images);
 
   return hotel;
 };
@@ -84,7 +97,14 @@ export const getAvailableHotelRoomsService = async (
 
   const [rooms, total] = await Promise.all([
     Room.find(filter)
-      .populate("roomType", "name capacity pricePerNight images")
+      .populate({
+        path: "roomType",
+        select: "name capacity pricePerNight amenities description",
+      })
+      .populate({
+        path: "images",
+        select: "key originalName",
+      })
       .sort({ roomNumber: 1 })
       .skip(skip)
       .limit(limit),
@@ -92,8 +112,19 @@ export const getAvailableHotelRoomsService = async (
     Room.countDocuments(filter),
   ]);
 
+  const roomsWithUrls = await Promise.all(
+    rooms.map(async (room) => {
+      const roomObj = room.toObject();
+
+      if (roomObj.images) {
+        roomObj.images = await attachSignedUrls(roomObj.images);
+      }
+
+      return roomObj;
+    }),
+  );
   return {
-    rooms,
+    rooms: roomsWithUrls,
     pagination: {
       total,
       page,
@@ -107,10 +138,16 @@ export const getAvailableHotelRoomsService = async (
 
 //available room by id
 export const getAvailableRoomByIdService = async (roomId) => {
-  const room = await Room.findById(roomId).populate(
-    "hotel",
-    "hotelName status",
-  );
+  const room = await Room.findById(roomId)
+    .populate("hotel", "hotelName status")
+    .populate({
+      path: "roomType",
+      select: "name description capacity pricePerNight amenities",
+    })
+    .populate({
+      path: "images",
+      select: "key originalName",
+    });
 
   if (!room) {
     throw new Error("Room not found.");
@@ -120,5 +157,11 @@ export const getAvailableRoomByIdService = async (roomId) => {
     throw new Error("Room is not available.");
   }
 
-  return room;
+  const roomObj = room.toObject();
+
+  if (roomObj.images) {
+    roomObj.images = await attachSignedUrls(roomObj.images);
+  }
+
+  return roomObj;
 };

@@ -65,6 +65,7 @@ export const getApprovedHotelById = async (req, res) => {
 
 //get available rooms
 export const getAvailableHotelRooms = async (req, res) => {
+   console.log("ROOM ROUTE HIT");
   try {
     const pageRaw = Number(req.query.page ?? 1);
     const limitRaw = Number(req.query.limit ?? 10);
@@ -89,6 +90,7 @@ export const getAvailableHotelRooms = async (req, res) => {
       ...result,
     });
   } catch (error) {
+     console.log("ROOM ERROR =", error.message);
     res.status(404).json({
       success: false,
       message: error.message,
