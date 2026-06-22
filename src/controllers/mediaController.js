@@ -78,11 +78,20 @@ export const uploadMedia = async (req, res) => {
       editable,
     });
 
+    console.log("REQ FILE:", {
+      originalname: req.file?.originalname,
+      mimetype: req.file?.mimetype,
+      size: req.file?.size,
+      hasBuffer: !!req.file?.buffer,
+    });
+
     res.status(201).json({
       success: true,
       media,
     });
   } catch (error) {
+    console.error("UPLOAD ERROR:");
+    console.error(error);
     res.status(500).json({
       success: false,
       message: error.message,
