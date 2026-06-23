@@ -7,6 +7,7 @@ import {
   getHotelById,
   approveHotel,
   rejectHotel,
+  getHotelReview
 } from "../controllers/adminController.js";
 
 const router = express.Router();
@@ -17,5 +18,6 @@ router.get("/hotels", getAllHotels);
 router.get("/hotels/:id", getHotelById);
 router.put("/hotels/:id/approve", approveHotel);
 router.put("/hotels/:id/reject", rejectHotel);
+router.get("/hotels/:id/review", getHotelReview);
 
 export default router;

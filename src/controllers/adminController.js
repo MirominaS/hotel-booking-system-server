@@ -3,6 +3,7 @@ import {
   getHotelByIdService,
   approveHotelService,
   rejectHotelService,
+   getHotelReviewService,
 } from "../services/adminService.js";
 
 export const getAllHotels = async (req, res) => {
@@ -67,6 +68,24 @@ export const rejectHotel = async (req, res) => {
     });
   } catch (error) {
     res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getHotelReview = async (req, res) => {
+  try {
+    const reviewData = await getHotelReviewService(
+      req.params.id
+    );
+
+    res.status(200).json({
+      success: true,
+      ...reviewData,
+    });
+  } catch (error) {
+    res.status(404).json({
       success: false,
       message: error.message,
     });
