@@ -6,7 +6,11 @@ import {
   updateReviewService,
   deleteReviewService,
   getHotelReviewSummaryService,
+  getAllReviewsService,
   canReviewService,
+  getMyHotelReviewsService,
+  getMyOwnerReviewsService,
+  getMyRoomReviewsService,
 } from "../services/reviewService.js";
 
 export const createReview = async (req, res) => {
@@ -203,6 +207,7 @@ export const getAllReviews = async (req, res) => {
       ...result,
     });
   } catch (error) {
+    console.log("GET ALL REVIEWS ERROR:", error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -239,3 +244,98 @@ export const canReview = async (req, res) => {
   }
 };
 
+export const getMyOwnerReviews = async (req, res) => {
+  try {
+    const pageRaw = Number(req.query.page ?? 1);
+    const limitRaw = Number(req.query.limit ?? 10);
+
+    const page =
+      Number.isFinite(pageRaw) && pageRaw > 0 ? Math.floor(pageRaw) : 1;
+
+    const limit =
+      Number.isFinite(limitRaw) && limitRaw > 0 ? Math.floor(limitRaw) : 10;
+
+    const skip = (page - 1) * limit;
+
+    const result = await getMyOwnerReviewsService(
+      req.user._id,
+      page,
+      limit,
+      skip,
+    );
+
+    res.status(200).json({
+      success: true,
+      ...result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getMyHotelReviews = async (req, res) => {
+  try {
+    const pageRaw = Number(req.query.page ?? 1);
+    const limitRaw = Number(req.query.limit ?? 10);
+
+    const page =
+      Number.isFinite(pageRaw) && pageRaw > 0 ? Math.floor(pageRaw) : 1;
+
+    const limit =
+      Number.isFinite(limitRaw) && limitRaw > 0 ? Math.floor(limitRaw) : 10;
+
+    const skip = (page - 1) * limit;
+
+    const result = await getMyHotelReviewsService(
+      req.user._id,
+      page,
+      limit,
+      skip,
+    );
+
+    res.status(200).json({
+      success: true,
+      ...result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getMyRoomReviews = async (req, res) => {
+  try {
+    const pageRaw = Number(req.query.page ?? 1);
+    const limitRaw = Number(req.query.limit ?? 10);
+
+    const page =
+      Number.isFinite(pageRaw) && pageRaw > 0 ? Math.floor(pageRaw) : 1;
+
+    const limit =
+      Number.isFinite(limitRaw) && limitRaw > 0 ? Math.floor(limitRaw) : 10;
+
+    const skip = (page - 1) * limit;
+
+    const result = await getMyRoomReviewsService(
+      req.user._id,
+      page,
+      limit,
+      skip,
+    );
+
+    res.status(200).json({
+      success: true,
+      ...result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

@@ -1,6 +1,8 @@
 import Review from "../models/Review.js";
 import mongoose from "mongoose";
 import { canReviewEntity } from "../utils/reviewEligibility.js";
+import Hotel from "../models/Hotel.js";
+import RoomType from "../models/RoomType.js";
 
 export const createReviewService = async (
   userId,
@@ -246,8 +248,45 @@ export const getAllReviewsService = async (page, limit, skip) => {
     }),
   ]);
 
+  const enrichedReviews = await Promise.all(
+    reviews.map(async (review) => {
+      let target = null;
+
+      if (review.reviewableType === "Hotel") {
+        target = await Hotel.findById(review.reviewableId)
+          .populate("user", "firstName lastName")
+          .select("hotelName user");
+      }
+
+      if (review.reviewableType === "RoomType") {
+        target = await RoomType.findById(review.reviewableId)
+          .populate({
+            path: "hotel",
+            select: "hotelName user",
+            populate: {
+              path: "user",
+              select: "firstName lastName",
+            },
+          })
+          .select("name hotel");
+      }
+
+      if (review.reviewableType === "HotelOwner") {
+        target = await HotelOwner.findById(review.reviewableId).populate(
+          "user",
+          "firstName lastName",
+        );
+      }
+
+      return {
+        ...review.toObject(),
+        target,
+      };
+    }),
+  );
+
   return {
-    reviews,
+    reviews: enrichedReviews,
     pagination: {
       total,
       page,
@@ -268,5 +307,132 @@ export const canReviewService = async (
 
   return {
     canReview,
+  };
+};
+
+export const getMyOwnerReviewsService = async (userId, page, limit, skip) => {
+  const [reviews, total] = await Promise.all([
+    Review.find({
+      reviewableType: "HotelOwner",
+      reviewableId: userId,
+      isActive: true,
+    })
+      .populate("customer", "firstName lastName")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+
+    Review.countDocuments({
+      reviewableType: "HotelOwner",
+      reviewableId: userId,
+      isActive: true,
+    }),
+  ]);
+
+  return {
+    reviews,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      hasNextPage: page < Math.ceil(total / limit),
+      hasPrevPage: page > 1,
+    },
+  };
+};
+
+export const getMyHotelReviewsService = async (userId, page, limit, skip) => {
+  const hotels = await Hotel.find({
+    user: userId,
+    isActive: true,
+  }).select("_id hotelName");
+
+  const hotelIds = hotels.map((hotel) => hotel._id);
+
+  const [reviews, total] = await Promise.all([
+    Review.find({
+      reviewableType: "Hotel",
+      reviewableId: {
+        $in: hotelIds,
+      },
+      isActive: true,
+    })
+      .populate("customer", "firstName lastName")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+
+    Review.countDocuments({
+      reviewableType: "Hotel",
+      reviewableId: {
+        $in: hotelIds,
+      },
+      isActive: true,
+    }),
+  ]);
+
+  return {
+    reviews,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      hasNextPage: page < Math.ceil(total / limit),
+      hasPrevPage: page > 1,
+    },
+  };
+};
+
+export const getMyRoomReviewsService = async (userId, page, limit, skip) => {
+  const hotels = await Hotel.find({
+    user: userId,
+    isActive: true,
+  }).select("_id");
+
+  const hotelIds = hotels.map((hotel) => hotel._id);
+
+  const roomTypes = await RoomType.find({
+    hotel: {
+      $in: hotelIds,
+    },
+    isActive: true,
+  }).select("_id");
+
+  const roomTypeIds = roomTypes.map((room) => room._id);
+
+  const [reviews, total] = await Promise.all([
+    Review.find({
+      reviewableType: "RoomType",
+      reviewableId: {
+        $in: roomTypeIds,
+      },
+      isActive: true,
+    })
+      .populate("customer", "firstName lastName")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+
+    Review.countDocuments({
+      reviewableType: "RoomType",
+      reviewableId: {
+        $in: roomTypeIds,
+      },
+      isActive: true,
+    }),
+  ]);
+
+  return {
+    reviews,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      hasNextPage: page < Math.ceil(total / limit),
+      hasPrevPage: page > 1,
+    },
   };
 };
