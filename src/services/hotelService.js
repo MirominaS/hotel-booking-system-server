@@ -132,3 +132,5 @@ export const deleteHotelService = async (userId, hotelId) => {
 
   return await hotel.save();
 };
+
+

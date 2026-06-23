@@ -7,6 +7,7 @@ import {
   getMyHotelById,
   updateHotel,
   deleteHotel,
+  getPublicHotelById,
 } from "../controllers/hotelController.js";
 
 const router = express.Router();
@@ -14,6 +15,7 @@ const router = express.Router();
 router.post("/", protect, createHotel);
 router.get("/", protect, getMyHotels);
 router.get("/:id", protect, authorize("hotel_owner"), getMyHotelById);
+router.get("/public/:id", getPublicHotelById);
 router.put("/:id", protect, authorize("hotel_owner"), updateHotel);
 router.delete("/:id", protect, authorize("hotel_owner"), deleteHotel);
 

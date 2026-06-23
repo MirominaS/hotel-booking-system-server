@@ -5,6 +5,7 @@ import {
   updateHotelService,
   deleteHotelService,
 } from "../services/hotelService.js";
+import Hotel from "../models/Hotel.js";
 
 export const createHotel = async (req, res) => {
   try {
@@ -16,7 +17,7 @@ export const createHotel = async (req, res) => {
       hotel,
     });
   } catch (error) {
-    console.log("ERROR CREATE HOTEL:",error.message);
+    console.log("ERROR CREATE HOTEL:", error.message);
     res.status(400).json({
       success: false,
       message: error.message,
@@ -92,6 +93,31 @@ export const deleteHotel = async (req, res) => {
     });
   } catch (error) {
     res.status(400).json({
+      message: error.message,
+    });
+  }
+};
+
+export const getPublicHotelById = async (req, res) => {
+  try {
+    const hotel = await Hotel.findById(req.params.id)
+      .populate("user", "firstName lastName")
+      .populate("images");
+
+    if (!hotel) {
+      return res.status(404).json({
+        message: "Hotel not found",
+      });
+    }
+
+       console.log(JSON.stringify(hotel, null, 2));
+
+    res.json({
+      success: true,
+      hotel,
+    });
+  } catch (error) {
+    res.status(500).json({
       message: error.message,
     });
   }
