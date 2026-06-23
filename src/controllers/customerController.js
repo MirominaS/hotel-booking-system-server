@@ -3,6 +3,7 @@ import {
   getApprovedHotelByIdService,
   getAvailableHotelRoomsService,
   getAvailableRoomByIdService,
+  searchHotelsService,
 } from "../services/customerService.js";
 
 //get approved hotels
@@ -65,7 +66,7 @@ export const getApprovedHotelById = async (req, res) => {
 
 //get available rooms
 export const getAvailableHotelRooms = async (req, res) => {
-   console.log("ROOM ROUTE HIT");
+  console.log("ROOM ROUTE HIT");
   try {
     const pageRaw = Number(req.query.page ?? 1);
     const limitRaw = Number(req.query.limit ?? 10);
@@ -90,7 +91,7 @@ export const getAvailableHotelRooms = async (req, res) => {
       ...result,
     });
   } catch (error) {
-     console.log("ROOM ERROR =", error.message);
+    console.log("ROOM ERROR =", error.message);
     res.status(404).json({
       success: false,
       message: error.message,
@@ -109,6 +110,38 @@ export const getAvailableRoomById = async (req, res) => {
     });
   } catch (error) {
     res.status(404).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const searchHotels = async (req, res) => {
+  try {
+    const { city, checkIn, checkOut, guests } = req.query;
+
+    console.log({
+      city,
+      checkIn,
+      checkOut,
+      guests,
+    });
+
+    const hotels = await searchHotelsService({
+      city,
+      checkIn,
+      checkOut,
+      guests: Number(guests),
+    });
+
+    res.json({
+      success: true,
+      hotels,
+    });
+  } catch (error) {
+    console.log("SEARCH ERROR =", error);
+
+    res.status(500).json({
       success: false,
       message: error.message,
     });
