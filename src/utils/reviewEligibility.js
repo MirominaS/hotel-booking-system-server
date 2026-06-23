@@ -6,7 +6,7 @@ import RoomType from "../models/RoomType.js";
 
 const completedBooking = {
   status: "confirmed",
-  checkOutDate: {
+  checkInDate: {
     $lte: new Date(),
   },
 };
@@ -40,14 +40,8 @@ export const canReviewRoomType = async (userId, roomTypeId) => {
 };
 
 export const canReviewOwner = async (userId, ownerId) => {
-  const owner = await HotelOwner.findById(ownerId);
-
-  if (!owner) {
-    return false;
-  }
-
   const hotelIds = await Hotel.find({
-    user: owner.user,
+    user: ownerId,
   }).distinct("_id");
 
   if (!hotelIds.length) {
